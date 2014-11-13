@@ -86,7 +86,7 @@ void prim2cons( double * prim , double temp,double * cons , double r , double dV
    }
 }
 
-void getUstar( double * prim ,double temp, double * Ustar , double r , double Sk , double Ss , double * n , double * Bpack ){
+void getUstar( double * prim ,double roe,double temp, double * Ustar , double r , double Sk , double Ss , double * n , double * Bpack ){
 
    double rho = prim[RHO];
    double vr  = prim[URR];
@@ -102,13 +102,6 @@ void getUstar( double * prim ,double temp, double * Ustar , double r , double Sk
 
    double vn_off = vn - om*r*n[1];
    double Ss_off = Ss + vn_off - vn;
-
- //  double rhoe = Pp/(gamma_law - 1.);
-   double rhoe=0.0;
-   double cs=0.0;
-   invert_helmeos_pd(Pp,rho,&temp,&rhoe,&cs);
-
-
 
    double rhostar = rho*(Sk - vn)/(Sk - Ss);
    double Pstar = Pp*(Ss - vn)/(Sk - Ss);
@@ -176,7 +169,7 @@ void cons2prim( double * cons , double * prim , double *temp ,double r , double 
 
 	
 
-void flux( double * prim , double * flux , double r , double * n ){
+void flux( double * prim ,double roe, double * flux , double r , double * n ){
    
    double rho = prim[RHO];
    double Pp  = prim[PPP];
@@ -188,8 +181,6 @@ void flux( double * prim , double * flux , double r , double * n ){
    double vn = vr*n[0] + vp*n[1] + vz*n[2];
    double wn = om*r*n[1];
    double vp_off = vp - om*r;
-
-   double rhoe = Pp/(gamma_law - 1.);
    double v2 = vr*vr + vp_off*vp_off + vz*vz;
 
    flux[DDD] = rho*vn;
@@ -257,7 +248,7 @@ void visc_flux( double * prim , double * gprim , double * flux , double r , doub
 
 }
 
-void vel( double * prim1 , double temp1,double * prim2 ,double temp2, double * Sl , double * Sr , double * Ss , double * n , double r  ){
+void vel( double * prim1 , double temp1,double * prim2 ,double temp2, double * Sl , double * Sr , double * Ss , double * n , double r,double *U1,double *U2,double *roel,double *roer  ){
 	
    double P1   = prim1[PPP];
    double rho1 = prim1[RHO];
@@ -267,20 +258,51 @@ void vel( double * prim1 , double temp1,double * prim2 ,double temp2, double * S
    double rhoe1=0.0;
    invert_helmeos_pd(P1,rho1,&temp1,&rhoe1,&cs1);
 
+  // do the prim2cons here to reduce work load
+   double vr  = prim1[URR];
+   double vp  = prim1[UPP]*r;
+   double vz  = prim1[UZZ];
+   double om  = get_om( r );
+   double vp_off = vp - om*r;
+   double v2  = vr*vr + vp_off*vp_off + vz*vz;
+   U1[DDD] = rho1;
+   U1[TAU] = (.5*rho1*v2 + rhoe1 );
+   U1[SRR] = rho1*vr;
+   U1[LLL] = r*rho1*vp;
+   U1[SZZ] = rho1*vz;
+   int q;
+   for( q=NUM_C ; q<NUM_Q ; ++q ){
+      U1[q] = prim1[q]*U1[DDD];
+   }
 
 //   double cs1 = sqrt(gamma_law*P1/rho1);
 
    double P2   = prim2[PPP];
    double rho2 = prim2[RHO];
    double vn2  = prim2[URR]*n[0] + prim2[UPP]*n[1]*r + prim2[UZZ]*n[2];
-   
    double cs2=0.0;
 //   double temp2=1.25e9;
    double rhoe2=0.0;
    invert_helmeos_pd(P2,rho2,&temp2,&rhoe2,&cs2);
-
 //   double cs2 = sqrt(gamma_law*P2/rho2);
+//again do prim2cons here to save work load 
+   vr  = prim2[URR];
+   vp  = prim2[UPP]*r;
+   vz  = prim2[UZZ];
+   om  = get_om( r );
+   vp_off = vp - om*r;
+   v2  = vr*vr + vp_off*vp_off + vz*vz;
+   U2[DDD] = rho2;
+   U2[TAU] = (.5*rho2*v2 + rhoe2 );
+   U2[SRR] = rho2*vr;
+   U2[LLL] = r*rho2*vp;
+   U2[SZZ] = rho2*vz;
+   for( q=NUM_C ; q<NUM_Q ; ++q ){
+      U2[q] = prim2[q]*U2[DDD];
+   }
 
+   
+   
    *Ss = ( P2 - P1 + rho1*vn1*(-cs1) - rho2*vn2*cs2 )/( rho1*(-cs1) - rho2*cs2 );
 
    *Sr =  cs1 + vn1;
@@ -288,6 +310,10 @@ void vel( double * prim1 , double temp1,double * prim2 ,double temp2, double * S
 
    if( *Sr <  cs2 + vn2 ) *Sr =  cs2 + vn2;
    if( *Sl > -cs2 + vn2 ) *Sl = -cs2 + vn2;
+   
+   //
+   *roel=roe1;
+   *roer=roe2;
 
 }
 
