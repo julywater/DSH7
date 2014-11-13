@@ -596,29 +596,29 @@
 
 
 ! bomb proof the input
-        if (temp .gt. t(jmax)) then
-         write(6,01) 'temp=',temp,' t(jmax)=',t(jmax)
+        if (temp .gt. 1d13) then
+         write(6,01) 'temp=',temp,' t(jmax)=',1d13
          write(6,*) 'temp too hot, off grid'
          write(6,*) 'setting eosfail to true and returning'
          eosfail = .true.
          return
         end if
-        if (temp .lt. t(1)) then
-         write(6,01) 'temp=',temp,' t(1)=',t(1)
+        if (temp .lt. 1d3) then
+         write(6,01) 'temp=',temp,' t(1)=',1d3
          write(6,*) 'temp too cold, off grid'
          write(6,*) 'setting eosfail to true and returning'
          eosfail = .true.
          return
         end if
-        if (din  .gt. d(imax)) then
-         write(6,01) 'den*ye=',din,' d(imax)=',d(imax)
+        if (din  .gt. 1d15) then
+         write(6,01) 'den*ye=',din,' d(imax)=',1d15
          write(6,*) 'ye*den too big, off grid'
          write(6,*) 'setting eosfail to true and returning'
          eosfail = .true.
          return
         end if
-        if (din  .lt. d(1)) then
-         write(6,01) 'ye*den=',din,' d(1)=',d(1)
+        if (din  .lt. 1d-12) then
+         write(6,01) 'ye*den=',din,' d(1)=',1d-12
          write(6,*) 'ye*den too small, off grid'
          write(6,*) 'setting eosfail to true and returning'
          eosfail = .true.
