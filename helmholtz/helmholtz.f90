@@ -244,7 +244,7 @@
      subroutine read_helm_table(table)
       include 'implno.dek'
 	  include 'vector_eos.dek'
-      include 'helm_table_storage.dek'
+      include 'helm_table_storage2.dek'
       double precision table(20*imax*jmax+6*(imax+jmax))
       integer i,j,is,iat,jat
       double precision temp,den,abar,zbar,ytot1,ye,din
@@ -274,16 +274,19 @@
 		
 	   
     is=1
-	do j=1,jmax
-	  t(j)=table(is)
-      is=is+1	
-	enddo
-	
-	do i=1,imax
-	  d(i)=table(is)
-	  is=is+1
-        enddo
+!	do j=1,jmax
+	  t(jat)=table(is+jat-1)
+ !     is=is+1	
+!	enddo
+	is=is+jmax
 
+!	do i=1,imax
+	  d(iat)=table(is+iat-1)
+!	  is=is+1
+!        enddo
+        is=is+imax
+!    t_jat=t(jat)
+!    d_iat=d(iat)
 	
     dt_sav(jat)=table(is+jat-1)
     dt2_sav(jat)=table(is+jat)
@@ -316,7 +319,7 @@
       include 'implno.dek'
       include 'const.dek'
       include 'vector_eos.dek'
-      include 'helm_table_storage.dek'
+      include 'helm_table_storage2.dek'
       double precision table(21*imax*jmax+6*(imax+jmax)-10)
 ! given a temperature temp [K], density den [g/cm**3], and a composition
 ! characterized by abar and zbar, this routine returns most of the other
