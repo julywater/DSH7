@@ -3,9 +3,9 @@ enum{_HLL_,_HLLC_};
 #include "paul.h"
 
 //void prim2cons( double * , double * , double , double );
-void flux( double * , double * , double , double * );
-void getUstar( double * ,double, double * , double , double , double , double * );
-void vel( double * , double ,double * ,double, double * , double * , double * , double * , double ,double *,double *);
+void flux( double * , double,double * , double , double * );
+void getUstar( double * ,double,double, double * , double , double , double , double * );
+void vel( double * , double ,double * ,double, double * , double * , double * , double * , double ,double *,double *,double *,double *);
 double get_signed_dp( double , double );
 void visc_flux( double * , double * , double * , double , double * );
 

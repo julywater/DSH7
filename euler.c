@@ -86,7 +86,7 @@ void prim2cons( double * prim , double temp,double * cons , double r , double dV
    }
 }
 
-void getUstar( double * prim ,double roe,double temp, double * Ustar , double r , double Sk , double Ss , double * n , double * Bpack ){
+void getUstar( double * prim ,double rhoe,double temp, double * Ustar , double r , double Sk , double Ss , double * n  ){
 
    double rho = prim[RHO];
    double vr  = prim[URR];
@@ -169,7 +169,7 @@ void cons2prim( double * cons , double * prim , double *temp ,double r , double 
 
 	
 
-void flux( double * prim ,double roe, double * flux , double r , double * n ){
+void flux( double * prim ,double rhoe, double * flux , double r , double * n ){
    
    double rho = prim[RHO];
    double Pp  = prim[PPP];
@@ -312,8 +312,8 @@ void vel( double * prim1 , double temp1,double * prim2 ,double temp2, double * S
    if( *Sl > -cs2 + vn2 ) *Sl = -cs2 + vn2;
    
    //
-   *roel=roe1;
-   *roer=roe2;
+   *roel=rhoe1;
+   *roer=rhoe2;
 
 }
 
